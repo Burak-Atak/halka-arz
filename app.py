@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-import locale
+# import locale
 import schedule
 from bs4 import BeautifulSoup
 from notifications import *
@@ -65,12 +65,13 @@ def main():
 
 
 if __name__ == "__main__":
-    locale.setlocale(locale.LC_ALL, 'tr_TR.UTF-8')
+    # locale.setlocale(locale.LC_ALL, 'tr_TR.UTF-8')
     main()
 
     schedule_times = SETTINGS["SCHEDULE_TIMES"]
     for schedule_time in schedule_times:
         schedule.every().day.at(schedule_time).do(main)
     while True:
+        print("Running...")
         schedule.run_pending()
         time.sleep(10)
