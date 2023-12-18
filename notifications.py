@@ -1,6 +1,10 @@
+import logging
 from abc import ABC, abstractmethod
-import requests
 import os
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+from config import SETTINGS
+from main import *
 
 
 class BaseNotification(ABC):
@@ -12,11 +16,41 @@ class BaseNotification(ABC):
 class TelegramNotification(BaseNotification):
     def __init__(self):
         self.bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        self.webhook_url = os.environ.get(
+            'TELEGRAM_WEBHOOK_URL')
         self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
         self.methods = {
             "get_updates": "/getUpdates",
             "send_message": "/sendMessage"
         }
+        self.app = self.__get_app()
+
+    def __get_app(self, ):
+        async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            message = check_halka_arz_and_prepare_message()
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=message if message else "Bugün halka arzı olan şirket yok."
+            )
+
+        async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text="Sorry, I didn't understand that command.")
+
+        app = (ApplicationBuilder().
+               token(os.environ.get('TELEGRAM_BOT_TOKEN')).
+               read_timeout(7).
+               get_updates_read_timeout(42).build())
+
+        start_handler = CommandHandler('start', start)
+        unknown_handler = MessageHandler(filters.COMMAND, unknown)
+
+        self.__set_web_hook(self.webhook_url)
+
+        app.add_handler(start_handler)
+        app.add_handler(unknown_handler)
+
+        return app
 
     def send_notification(self, message):
         group_chat_ids = self.__get_group_chat_ids()
@@ -26,7 +60,6 @@ class TelegramNotification(BaseNotification):
     def __get_group_chat_ids(self):
         url = self.__get_url("get_updates")
         updates = requests.get(url)
-        print(updates.json())
         results = updates.json()["result"]
 
         group_chat_ids = {update["message"]["chat"]["id"] for update in results}
@@ -42,6 +75,11 @@ class TelegramNotification(BaseNotification):
     def __get_url(self, method):
         return self.base_url + self.methods[method]
 
+    def __set_web_hook(self, url):
+        request_url = f'https://api.telegram.org/bot{self.bot_token}/setWebhook?url={url}'
+        response = requests.get(request_url)
+        logging.warning(response.json())
+
 
 class NtfyNotification(BaseNotification):
     def __init__(self):
@@ -56,3 +94,6 @@ NOTIFICATION_TYPES = {
     "telegram": TelegramNotification,
     "ntfy": NtfyNotification
 }
+
+notification_classes = [NOTIFICATION_TYPES[notification_type] for notification_type in
+                        SETTINGS["ACTIVE_NOTIFICATION_TYPES"] if notification_type]

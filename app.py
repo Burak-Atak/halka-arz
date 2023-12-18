@@ -68,10 +68,10 @@ if __name__ == "__main__":
     # locale.setlocale(locale.LC_ALL, 'tr_TR.UTF-8')
     main()
 
-    schedule_times = SETTINGS["SCHEDULE_TIMES"]
+    """schedule_times = SETTINGS["SCHEDULE_TIMES"]
     for schedule_time in schedule_times:
         schedule.every().day.at(schedule_time).do(main)
     while True:
         print("Running...")
         schedule.run_pending()
-        time.sleep(10)
+        time.sleep(10)"""

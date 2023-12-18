@@ -1,4 +1,7 @@
+import os
+
 SETTINGS = {
-    "ACTIVE_NOTIFICATION_TYPES": ["telegram", ],
-    "SCHEDULE_TIMES": ["12:00", "15:00"],
+    "ACTIVE_NOTIFICATION_TYPES": os.environ.get("ACTIVE_NOTIFICATION_TYPES", "").split(",") or ["telegram"],
+    "SCHEDULE_CONFIG": os.environ.get("SCHEDULE_CONFIG") or "0 0 10,13 * * *",
+    "TIMEZONE": os.environ.get("TIMEZONE") or "Europe/Istanbul",
 }
