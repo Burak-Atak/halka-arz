@@ -38,8 +38,10 @@ def get_possible_lots(soup):
 
 def get_data():
     url = "https://halkarz.com/"
+    user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+    headers = {"User-Agent": user_agent}
 
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     soup = BeautifulSoup(response.content, "html.parser")
 
@@ -53,7 +55,7 @@ def get_data():
         company = a_elem.text
         bist_code = elem.find("span", {"class": "il-bist-kod"}).text.strip()
         link = a_elem["href"]
-        dates = elem.find("span", {"class": "il-halka-arz-tarihi"}).find("time").text
+        dates = elem.find("span", {"class": "il-halka-arz-tarihi"}).find("time").text.replace(" - ", ", ")
         if dates == "Hazırlanıyor...":
             continue
 
