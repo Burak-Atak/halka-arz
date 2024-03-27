@@ -71,7 +71,7 @@ def get_data():
             for day in parsed_days[::-1]:
                 datetime_obj = datetime.strptime(f"{day}-{month}-{year}", "%d-%m-%Y")
                 if check_dates_are_same(today, datetime_obj):
-                    detail_page = requests.get(detail_page_url)
+                    detail_page = requests.get(detail_page_url, headers=headers)
                     detail_soup = BeautifulSoup(detail_page.content, "html.parser")
                     arz_time_range = time_range(detail_soup)
                     price = get_price(detail_soup)
