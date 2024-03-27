@@ -39,3 +39,14 @@ async def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
     except Exception as e:
         logging.error(e)
         return func.HttpResponse("Internal Server Error", status_code=500)
+
+
+@app.route(route="send_all", auth_level=func.AuthLevel.ANONYMOUS, methods=["POST"])
+async def send_all(req: func.HttpRequest) -> func.HttpResponse:
+    try:
+        message = check_halka_arz_and_prepare_message()
+        if message:
+            send_notification_to_all(message, notification_classes)
+        return func.HttpResponse("OK", status_code=200)
+    except Exception as e:
+        logging.error(e)

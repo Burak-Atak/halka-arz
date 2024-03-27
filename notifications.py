@@ -58,11 +58,9 @@ class TelegramNotification(BaseNotification):
             self.__send_message(group_chat_id, message)
 
     def __get_group_chat_ids(self):
-        url = self.__get_url("get_updates")
-        updates = requests.get(url)
-        results = updates.json()["result"]
-
-        group_chat_ids = {update["message"]["chat"]["id"] for update in results}
+        group_chat_ids = os.environ.get("TELEGRAM_GROUP_CHAT_IDS")
+        if group_chat_ids:
+            group_chat_ids = group_chat_ids.split(",")
         return group_chat_ids
 
     def __send_message(self, chat_id, message_text):
