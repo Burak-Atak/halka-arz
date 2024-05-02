@@ -62,7 +62,7 @@ def get_data():
         splitted_dates = dates.split(",")
         last_date = splitted_dates[-1]
         year = last_date.split(" ")[-1]
-        for dates in dates.split(","):
+        for dates in splitted_dates:
             dates = dates.strip()
             parsed_days = dates.split(" ")[0].split("-")
             month = dates.split(" ")[1]
@@ -80,8 +80,9 @@ def get_data():
                                     "time_range": arz_time_range, "price": price, "possible_lots": possible_lots})
 
                 if (
+                        dates == splitted_dates[-1] and (
                         (datetime_obj.day < today.day and day == parsed_days[
-                            0]) or datetime_obj.month < today.month or datetime_obj.year < today.year):
+                            0]) or datetime_obj.month < today.month or datetime_obj.year < today.year)):
                     return actives
 
     return actives
@@ -103,3 +104,9 @@ def check_halka_arz_and_prepare_message():
 
     if actives:
         return message
+
+
+if __name__ == "__main__":
+    message = check_halka_arz_and_prepare_message()
+    if message:
+        print(message)
