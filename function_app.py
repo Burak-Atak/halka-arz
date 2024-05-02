@@ -20,6 +20,8 @@ def timer_trigger(myTimer: func.TimerRequest) -> None:
         if message:
             send_notification_to_all(message, notification_classes)
 
+        logging.warning("Timer trigger function executed successfully.")
+
     except Exception as e:
         logging.error(e)
 
